@@ -17,3 +17,13 @@ jobs:
       - run: python -m ruff format --check src tests
       - run: python -m pytest -q
       - run: python -m legal_rag.cli smoke --output runs/ci-smoke
+  parser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-dev.lock.txt
+      - run: python -m pip install -e . 'llama-index-core==0.14.23'
+      - run: python -m pytest -q

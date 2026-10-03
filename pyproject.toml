@@ -11,6 +11,7 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6"]
+retrieval = ["llama-index-core==0.14.23", "llama-index-embeddings-huggingface==0.7.0"]
 
 [project.scripts]
 legal-rag = "legal_rag.cli:main"

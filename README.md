@@ -1,6 +1,6 @@
 # Legal RAG evaluation
 
-A Python research package for continuing the Vietnamese ESG legal QA dissertation. The current runnable workflows validate recovered inputs, inventory private files and run a small synthetic retrieval check. Historical notebooks are retained for comparison. BGE-M3 retrieval and answer generation still need migration from the notebooks into the package.
+A Python research package for continuing the Vietnamese ESG legal QA dissertation. Workflows validate recovered inputs, inventory private files and run a small synthetic retrieval check. Sentence and Sentence Window BGE-M3 retrieval have been extracted into an optional model workflow; see `docs/RETRIEVAL_RUNS.md` for installation and small-run commands. Fresh BGE-M3 results have not yet been reproduced. Historical notebooks are retained for comparison; answer generation still needs migration.
 
 ## Set up on Mac or Apollo
 
@@ -58,4 +58,4 @@ Commit source, tests, configuration and documentation. Keep private datasets, cr
 
 ## Next implementation milestone
 
-Extract Notebook 07's frozen Sentence and Sentence Window retrieval into modules, preserve its exact tokenizer and expansion/budget rules, and compare fresh retrieval outputs with the archived run. A successful synthetic smoke check or input validation does not establish model-result reproduction.
+Run the extracted Sentence and Sentence Window retrieval on a small subset with BGE-M3, reconcile model and environment versions, then compare a full run with the archived output. A successful synthetic smoke check or input validation does not establish model-result reproduction. Restart-safe model caches and answer generation are later migrations.

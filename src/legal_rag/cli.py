@@ -8,6 +8,7 @@ from pathlib import Path
 
 from legal_rag.baseline import validate_baseline
 from legal_rag.preflight import missing_inputs
+from legal_rag.retrieval import run_retrieval
 from legal_rag.smoke import run_smoke
 
 
@@ -35,13 +36,37 @@ def inventory(root: Path) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["inventory", "verify", "doctor", "validate", "smoke"])
+    parser.add_argument(
+        "command", choices=["inventory", "verify", "doctor", "validate", "smoke", "retrieve"]
+    )
     parser.add_argument(
         "--data-root", type=Path, default=Path(os.environ.get("LEGAL_RAG_DATA_ROOT", "data"))
     )
     parser.add_argument("--manifest", type=Path)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--method", choices=["sentence", "sentence_window"], default="sentence")
+    parser.add_argument("--question-limit", type=int, default=3)
+    parser.add_argument("--document-limit", type=int, default=3)
+    parser.add_argument("--device", choices=["cpu", "cuda", "mps"], default="cpu")
+    parser.add_argument("--model-revision")
     args = parser.parse_args()
+    if args.command == "retrieve":
+        if args.output is None:
+            parser.error("--output is required for retrieve")
+        try:
+            result = run_retrieval(
+                args.data_root,
+                args.output,
+                args.method,
+                args.question_limit,
+                args.document_limit,
+                args.device,
+                args.model_revision,
+            )
+        except ValueError as error:
+            parser.exit(2, f"{error}\n")
+        print(json.dumps(result, indent=2))
+        return
     if args.command == "smoke":
         if args.output is None:
             parser.error("--output is required for smoke; choose a new run directory")
