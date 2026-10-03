@@ -11,6 +11,7 @@ from pathlib import Path
 
 from legal_rag.baseline import corpus_fingerprint, read_jsonl, validate_baseline
 from legal_rag.chunking import create_nodes
+from legal_rag.model_revision import resolve_revision
 from legal_rag.scoring import score_budget_retrieval, score_retrieval
 
 
@@ -50,6 +51,7 @@ def run_retrieval(
         extras = [path for path in paths if path.stem not in gold_ids]
         paths = sorted(required + extras[: max(0, document_limit - len(required))])
     try:
+        from huggingface_hub import snapshot_download
         from llama_index.core import Document, VectorStoreIndex
         from llama_index.core.postprocessor import MetadataReplacementPostProcessor
         from llama_index.core.schema import QueryBundle
@@ -73,11 +75,9 @@ def run_retrieval(
         for row in read_jsonl(root / f"data/parsed/eval_{kind}.jsonl"):
             lookup[(row[identifier], row["doc_id"])] = row
     model_name = frozen["embedding_model"]
-    revision_args = {"revision": revision} if revision else {}
+    resolved_revision = resolve_revision(snapshot_download, model_name, revision)
+    revision_args = {"revision": resolved_revision}
     tokenizer = AutoTokenizer.from_pretrained(model_name, **revision_args)
-    resolved_revision = tokenizer.init_kwargs.get("_commit_hash")
-    if resolved_revision:
-        revision_args = {"revision": resolved_revision}
     model = HuggingFaceEmbedding(
         model_name=model_name,
         max_length=8192,
@@ -164,7 +164,8 @@ def run_retrieval(
         "indexed_nodes": len(nodes),
         "model": model_name,
         "requested_revision": revision,
-        "tokenizer_revision": tokenizer.init_kwargs.get("_commit_hash"),
+        "model_revision": resolved_revision,
+        "tokenizer_revision": resolved_revision,
         "device": device,
         "python": platform.python_version(),
         "git_commit": git.stdout.strip() if git.returncode == 0 else None,
@@ -177,6 +178,7 @@ def run_retrieval(
                 "transformers",
                 "sentence-transformers",
                 "torch",
+                "huggingface-hub",
                 "tiktoken",
                 "nltk",
             ]

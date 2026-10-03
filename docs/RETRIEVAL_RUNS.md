@@ -14,6 +14,8 @@ python -m pip install -e '.[retrieval]'
 
 This adds the embedding dependencies. The first actual run downloads BGE-M3 and its tokenizer unless cached; it also needs the parser's sentence and token resources. The historical notebook requested core 0.14.23, while the uploaded environment snapshot lists core 0.14.24 and omits several embedding packages. Core and its Hugging Face integration are pinned to the notebook values in the retrieval extra; transitive model dependencies are not yet a complete historical environment lock. Actual installed versions and the resolved tokenizer revision are recorded. The model is requested at the same resolved revision as the tokenizer.
 
+Before loading weights, the runner resolves the requested model revision (default: `main`) to an immutable snapshot commit. Both model and tokenizer load that commit, recorded as `model_revision` and `tokenizer_revision`; unresolved snapshots fail instead of recording null. Pass the recorded commit with `--model-revision` when comparing methods across runs.
+
 Use the existing Apollo model environment if it is available. A Mac run can use CPU but may take longer. Do not install over the old dissertation environment just to reconcile the conflicting snapshots; use a separate environment for new runs.
 
 ## Small run on the Mac
