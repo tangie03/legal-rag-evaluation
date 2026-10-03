@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 
+from legal_rag.baseline import validate_baseline
 from legal_rag.preflight import missing_inputs
 
 
@@ -28,11 +29,14 @@ def inventory(root: Path) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["inventory", "verify", "doctor"])
+    parser.add_argument("command", choices=["inventory", "verify", "doctor", "validate"])
     parser.add_argument("--data-root", type=Path,
                         default=Path(os.environ.get("LEGAL_RAG_DATA_ROOT", "data")))
     parser.add_argument("--manifest", type=Path)
     args = parser.parse_args()
+    if args.command == "validate":
+        print(json.dumps(validate_baseline(args.data_root), indent=2))
+        return
     if args.command == "doctor":
         missing = missing_inputs(args.data_root)
         if missing:

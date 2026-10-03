@@ -21,3 +21,15 @@ python -m legal_rag.cli doctor --data-root /absolute/path/to/esg_rag_project
 ```
 
 The checker reports every missing required file and exits with status 2. It works without the corpus, GPU or API key. Passing only establishes that expected paths exist, not that their content or corpus identity is valid. Unit tests use temporary fixtures and also run without the research data.
+
+## Benchmark inputs received and validated
+
+All five previously requested files have now been received. The assembled private project passes `legal-rag doctor` and `legal-rag validate`. All 118 questions link to parser records, their original gold text matches those records, and their source offsets recover the same text after trimming boundary whitespace. Five frozen methods are present. The 81 text files reproduce the historical evaluation SHA-256 exactly. Notebook 07 explicitly describes these as including non-gold distractors; parsed units cover 60 documents and questions cover 38. Thus the original run can be reproduced with 81 indexed documents, while the dissertation's 60-document description requires clarification.
+
+One question (`152_2020_ND-CP_m_461585_article_0027_q01`) is absent from the 120-row evidence export, but its gold passage exists in the parser tables and its source offsets and benchmark text validate. Notebook 07 reconstructs gold passages from the parser tables, so do not reject that question or silently rewrite the evidence export.
+
+```bash
+python -m legal_rag.cli validate --data-root /absolute/path/to/esg_rag_project
+```
+
+This validation checks inputs without downloading models or making API calls. Four fixture-based tests pass without the full corpus. Actual embedding, retrieval and generation have not yet been rerun. The next stage is extraction of Notebook 07's retrieval functions into the package with a separate, versioned output directory, then a small model smoke run before the full historical retrieval comparison.
