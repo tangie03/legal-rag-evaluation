@@ -8,6 +8,7 @@ from pathlib import Path
 
 from legal_rag.baseline import validate_baseline
 from legal_rag.preflight import missing_inputs
+from legal_rag.smoke import run_smoke
 
 
 def inventory(root: Path) -> dict:
@@ -22,18 +23,30 @@ def inventory(root: Path) -> dict:
         with path.open("rb") as stream:
             for chunk in iter(lambda: stream.read(1024 * 1024), b""):
                 digest.update(chunk)
-        files.append({"path": path.relative_to(root).as_posix(),
-                      "bytes": path.stat().st_size, "sha256": digest.hexdigest()})
+        files.append(
+            {
+                "path": path.relative_to(root).as_posix(),
+                "bytes": path.stat().st_size,
+                "sha256": digest.hexdigest(),
+            }
+        )
     return {"schema_version": 1, "files": files}
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["inventory", "verify", "doctor", "validate"])
-    parser.add_argument("--data-root", type=Path,
-                        default=Path(os.environ.get("LEGAL_RAG_DATA_ROOT", "data")))
+    parser.add_argument("command", choices=["inventory", "verify", "doctor", "validate", "smoke"])
+    parser.add_argument(
+        "--data-root", type=Path, default=Path(os.environ.get("LEGAL_RAG_DATA_ROOT", "data"))
+    )
     parser.add_argument("--manifest", type=Path)
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
+    if args.command == "smoke":
+        if args.output is None:
+            parser.error("--output is required for smoke; choose a new run directory")
+        print(json.dumps(run_smoke(args.output), indent=2))
+        return
     if args.command == "validate":
         print(json.dumps(validate_baseline(args.data_root), indent=2))
         return
