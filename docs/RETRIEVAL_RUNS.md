@@ -6,6 +6,8 @@ The default run selects three questions and up to three documents, including eac
 
 ## Install separately from lightweight development
 
+Use Python 3.12 for the retrieval environment. A Python 3.13 install can select NumPy 1.26.4, which only supports Python 3.9 through 3.12, and attempt a failing source build. The lightweight package tests can still run under Python 3.13; they do not establish that embedding dependencies installed.
+
 ```bash
 python -m pip install -e '.[retrieval]'
 ```

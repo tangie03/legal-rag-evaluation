@@ -6,6 +6,7 @@ import importlib.metadata
 import json
 import platform
 import subprocess
+import sys
 from pathlib import Path
 
 from legal_rag.baseline import corpus_fingerprint, read_jsonl, validate_baseline
@@ -23,6 +24,10 @@ def run_retrieval(
     revision: str | None = None,
 ):
     """Zero limits select the full corpus; small subsets are diagnostic only."""
+    if sys.version_info >= (3, 13):
+        raise ValueError(
+            "Use a separate Python 3.12 environment for the historical retrieval dependencies."
+        )
     if output.exists():
         raise ValueError(f"Output already exists: {output}")
     if method not in {"sentence", "sentence_window"}:
